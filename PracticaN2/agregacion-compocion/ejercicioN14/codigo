@@ -1,0 +1,129 @@
+public class Empleado {
+    String nombre;
+    String puesto;
+    double salario;
+
+    public Empleado(String nombre, String puesto, double salario) {
+        this.nombre = nombre;
+        this.puesto = puesto;
+        this.salario = salario;
+    }
+
+    public void mostrar() {
+        System.out.println(nombre + " / " + puesto + " / " + salario);
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public double getSalario() {
+        return salario;
+    }
+}
+
+
+public class Empresa {
+    String nombre;
+    Empleado[] empleados;
+    int numEmpleados;
+
+    public Empresa(String nombre) {
+        this.nombre = nombre;
+        this.empleados = new Empleado[100];
+        this.numEmpleados = 0;
+    }
+
+    public void agregarEmpleado(Empleado emp) {
+        if (numEmpleados < empleados.length) {
+            empleados[numEmpleados] = emp;
+            numEmpleados++;
+            System.out.println("Empleado " + emp.nombre + " agregado");
+        } else {
+            System.out.println("No hay espacio para más empleados");
+        }
+    }
+
+    public void mostrarEmpresa() {
+        System.out.println("Empresa: " + nombre);
+        System.out.println("Empleados:");
+        for (int i = 0; i < numEmpleados; i++) {
+            empleados[i].mostrar();
+        }
+    }
+
+    public Empleado buscarEmpleado(String nombre) {
+        for (int i = 0; i < numEmpleados; i++) {
+            if (empleados[i].getNombre().equals(nombre)) {
+                return empleados[i];
+            }
+        }
+        return null;
+    }
+
+    public void eliminarEmpleado(String nombre) {
+        for (int i = 0; i < numEmpleados; i++) {
+            if (empleados[i].getNombre().equals(nombre)) {
+                // Eliminar desplazando
+                for (int j = i; j < numEmpleados - 1; j++) {
+                    empleados[j] = empleados[j + 1];
+                }
+                empleados[numEmpleados - 1] = null;
+                numEmpleados--;
+                System.out.println("Empleado " + nombre + " eliminado");
+                return;
+            }
+        }
+        System.out.println("Empleado " + nombre + " no encontrado");
+    }
+
+
+    public double promedioSalarial() {
+        if (numEmpleados == 0) return 0;
+
+        double suma = 0;
+        for (int i = 0; i < numEmpleados; i++) {
+            suma += empleados[i].getSalario();
+        }
+        return suma / numEmpleados;
+    }
+
+    public void empleadosSalarioMayor(double salarioMin) {
+        System.out.println("empl con salario mayor a " + salarioMin + ":");
+        for (int i = 0; i < numEmpleados; i++) {
+            if (empleados[i].getSalario() > salarioMin) {
+                empleados[i].mostrar();
+            }
+        }
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        //a
+        Empresa empresa = new Empresa("cyber dark souls xd");
+
+        empresa.agregarEmpleado(new Empleado("felipe", "programador", 2500));
+        empresa.agregarEmpleado(new Empleado("agner", "diseñadora", 2000));
+        empresa.agregarEmpleado(new Empleado("carlos", "gerente", 4000));
+        empresa.agregarEmpleado(new Empleado("agner", "programador", 3000));
+
+        //b
+        empresa.mostrarEmpresa();
+
+        //c
+        System.out.println("\nBuscando a agner:");
+        Empleado encontrado = empresa.buscarEmpleado("Maria");
+        if (encontrado != null) {
+            encontrado.mostrar();
+        }
+        //e
+        System.out.println("\n prom salarial: " + empresa.promedioSalarial());
+        empresa.empleadosSalarioMayor(2500);
+        //d
+        System.out.println("\neliminando a Juan:");
+        empresa.eliminarEmpleado("Juan");
+        empresa.mostrarEmpresa();
+    }
+}
