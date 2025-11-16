@@ -1,0 +1,75 @@
+public class Doctor {
+    String nombre;
+    String especialidad;
+
+    public Doctor(String nombre, String especialidad) {
+        this.nombre = nombre;
+        this.especialidad = especialidad;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getEspecialidad() {
+        return especialidad;
+    }
+
+    public void mostrar() {
+        System.out.println(nombre + " - " + especialidad);
+    }
+}
+
+import java.util.ArrayList;
+
+public class Hospital {
+    String nombre;
+    ArrayList<Doctor> doctores;
+
+    public Hospital(String nombre) {
+        this.nombre = nombre;
+        this.doctores = new ArrayList<>();
+    }
+
+    public void asignarDoctor(Doctor doctor) {
+        doctores.add(doctor);
+        System.out.println("Doctor " + doctor.getNombre() + " asignado : " + nombre);
+    }
+
+    public void mostrarDoctores() {
+        System.out.println("doctores del hospiual " + nombre + ":");
+        for (Doctor doctor : doctores) {
+            doctor.mostrar();
+        }
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        //a
+        Doctor doc1 = new Doctor("dr.agner", "cirujano");
+        Doctor doc2 = new Doctor("dr.americo", "revisador");
+        Doctor doc3 = new Doctor("dr.yoel", "especilista");
+
+        //b
+        Hospital hosp1 = new Hospital("hospital del niño:");
+        Hospital hosp2 = new Hospital("hospital de la mujer:");
+
+        //c
+        hosp1.asignarDoctor(doc1);
+        hosp1.asignarDoctor(doc2);
+        hosp2.asignarDoctor(doc2);
+        hosp2.asignarDoctor(doc3);
+
+
+
+
+      
+        hosp1.mostrarDoctores();
+        hosp2.mostrarDoctores();
+    }
+}
