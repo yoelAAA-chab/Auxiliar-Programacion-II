@@ -1,0 +1,93 @@
+public class Calculadora {
+    public static int sumar(int a, int b) {
+        return a + b;
+    }
+
+    public static int restar(int a, int b) {
+        return a - b;
+    }
+
+    public static int multiplicar(int a, int b) {
+        return a * b;
+    }
+
+    public static double dividir(int a, int b) {
+        if (b == 0) {
+            throw new ArithmeticException("Error no se puede dividir por cero");
+        }
+        return (double) a / b;
+    }
+    public static int convertirANumero(String str) throws NumeroInvalidoException {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            throw new NumeroInvalidoException(str + "' no es un número válido");
+        }
+    }
+}
+
+public class NumeroInvalidoException extends Exception {
+    public NumeroInvalidoException(String mensaje) {
+        super(mensaje);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("metodos normales:");
+        System.out.println("5 + 3 = " + Calculadora.sumar(5, 3));
+        System.out.println("5 - 3 = " + Calculadora.restar(5, 3));
+        System.out.println("5 * 3 = " + Calculadora.multiplicar(5, 3));
+        System.out.println("6 / 3 = " + Calculadora.dividir(6, 3));
+
+        //b
+        try {
+            System.out.println("5 / 0 = " + Calculadora.dividir(5, 0));
+        } catch (ArithmeticException e) {
+            System.out.println(e.getMessage());
+        }
+
+        //c
+        try {
+            String numeroValido = "123";
+            int resultado1 = Calculadora.convertirANumero(numeroValido);
+            System.out.println("'" + numeroValido + "' convertido a: " + resultado1);
+
+            String numeroInvalido = "abc";
+            int resultado2 = Calculadora.convertirANumero(numeroInvalido);
+            System.out.println("'" + numeroInvalido + "' convertido a: " + resultado2);
+
+        } catch (NumeroInvalidoException e) {
+            System.out.println(e.getMessage());
+        }
+
+
+        try {
+            String num1 = "10";
+            String num2 = "5";
+
+            int a = Calculadora.convertirANumero(num1);
+            int b = Calculadora.convertirANumero(num2);
+
+            System.out.println(num1 + " + " + num2 + " = " + Calculadora.sumar(a, b));
+            System.out.println(num1 + " / " + num2 + " = " + Calculadora.dividir(a, b));
+
+        } catch (NumeroInvalidoException e) {
+            System.out.println(e.getMessage());
+        } catch (ArithmeticException e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            String num1 = "20";
+            String num2 = "cero";
+
+            int a = Calculadora.convertirANumero(num1);
+            int b = Calculadora.convertirANumero(num2);
+
+            System.out.println("Resultado: " + Calculadora.dividir(a, b));
+
+        } catch (NumeroInvalidoException | ArithmeticException e) {
+            System.out.println("Error capturado: " + e.getMessage());
+        }
+    }
+}
