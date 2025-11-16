@@ -1,0 +1,175 @@
+public class Producto {
+    String codigo;
+    String nombre;
+    double precio;
+    int stock;
+
+    public Producto(String codigo, String nombre, double precio, int stock) {
+        this.codigo = codigo;
+        this.nombre = nombre;
+        this.precio = precio;
+        this.stock = stock;
+    }
+
+    public void mostrar() {
+        System.out.println(codigo + " / " + nombre + " / $" + precio + " / Stock: " + stock);
+    }
+
+
+    public String getCodigo() {
+        return codigo;
+    }
+    public String getNombre() {
+        return nombre;
+    }
+    public double getPrecio() {
+        return precio;
+    }
+    public int getStock() {
+        return stock;
+    }
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+}
+
+
+
+public class DatosInvalidosException extends Exception {
+    public DatosInvalidosException(String mensaje) {
+        super(mensaje);
+    }
+}
+
+
+
+public class StockInsuficienteException extends Exception {
+    public StockInsuficienteException(String mensaje) {
+        super(mensaje);
+    }
+}
+
+
+
+public class ProductoNoEncontradoException extends Exception {
+    public ProductoNoEncontradoException(String mensaje) {
+        super(mensaje);
+    }
+}
+
+
+
+public class Inventario {
+    Producto[] productos;
+    int numProductos;
+
+    public Inventario() {
+        this.productos = new Producto[100];
+        this.numProductos = 0;
+    }
+
+
+    public void agregarProducto(Producto p) throws DatosInvalidosException {
+
+        for (int i = 0; i < numProductos; i++) {
+            if (productos[i].getCodigo().equals(p.getCodigo())) {
+                throw new DatosInvalidosException("El código " + p.getCodigo() + " ya existe");
+            }
+        }
+
+
+        if (p.getPrecio() < 0) {
+            throw new DatosInvalidosException("El precio no puede ser negativo");
+        }
+
+        if (p.getStock() < 0) {
+            throw new DatosInvalidosException("El stock no puede ser negativo");
+        }
+
+
+        if (numProductos < productos.length) {
+            productos[numProductos] = p;
+            numProductos++;
+            System.out.println("Producto " + p.getNombre() + " agregado exitosamente");
+        } else {
+            throw new DatosInvalidosException("Inventario lleno, no se pueden agregar más productos");
+        }
+    }
+
+
+    public Producto buscarProducto(String codigo) throws ProductoNoEncontradoException {
+        for (int i = 0; i < numProductos; i++) {
+            if (productos[i].getCodigo().equals(codigo)) {
+                return productos[i];
+            }
+        }
+        throw new ProductoNoEncontradoException("Producto con código " + codigo + " no encontrado");
+    }
+    public void venderProducto(String codigo, int cantidad)
+            throws ProductoNoEncontradoException, StockInsuficienteException {
+
+        Producto producto = buscarProducto(codigo);
+
+        if (producto.getStock() < cantidad) {
+            throw new StockInsuficienteException(
+                    "stock insuficiente disponible: " + producto.getStock() + ", solicitado: " + cantidad
+            );
+        }
+
+
+        producto.setStock(producto.getStock() - cantidad);
+        System.out.println("Venta realizada: " + cantidad + " unidades de " + producto.getNombre());
+    }
+
+    public void mostrarInventario() {
+        System.out.println("inventario......");
+        for (int i = 0; i < numProductos; i++) {
+            productos[i].mostrar();
+        }
+    }
+}
+
+
+
+
+
+public class Main {
+    public static void main(String[] args) {
+        Inventario inventario = new Inventario();
+
+        try {
+            inventario.agregarProducto(new Producto("001", "gamer laptop xd", 1200.0, 10));
+            inventario.agregarProducto(new Producto("007", "teclado", 25.0, 50));
+            inventario.agregarProducto(new Producto("002", "cel", 300.0, 5));
+        } catch (DatosInvalidosException e) {
+            System.out.println("error al agregar: " + e.getMessage());
+        }
+
+        try {
+            inventario.agregarProducto(new Producto("007", "teclado", -50.0, 20));
+
+        } catch (DatosInvalidosException e) {
+            System.out.println("error al agergar: " + e.getMessage());
+        }
+
+
+        inventario.mostrarInventario();
+        try {
+            Producto encontrado = inventario.buscarProducto("001");
+            System.out.println("prod encontrado:");
+            encontrado.mostrar();
+            inventario.buscarProducto("121");
+
+        } catch (ProductoNoEncontradoException e) {
+            System.out.println("Error en búsqueda: " + e.getMessage());
+        }
+        try {
+            inventario.venderProducto("P001", 2);
+            inventario.venderProducto("P002", 100);
+
+        } catch (ProductoNoEncontradoException | StockInsuficienteException e) {
+            System.out.println("Error en venta: " + e.getMessage());
+        }
+        inventario.mostrarInventario();
+    }
+}
