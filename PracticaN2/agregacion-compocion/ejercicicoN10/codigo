@@ -1,0 +1,176 @@
+public class Persona {
+    String nombre;
+    String apellido;
+    int edad;
+
+    public Persona(String nombre, String apellido, int edad) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.edad = edad;
+    }
+}
+
+public class Speaker {
+    String especialidad;
+    Persona persona;
+
+    public Speaker(Persona persona, String especialidad) {
+        this.persona = persona;
+        this.especialidad = especialidad;
+    }
+}
+
+
+public class Participante {
+    int noTicket;
+    Persona persona;
+
+    public Participante(Persona persona, int noTicket) {
+        this.persona = persona;
+        this.noTicket = noTicket;
+    }
+}
+
+public class Charla {
+    String lugar;
+    String nombreCharla;
+    Speaker S;
+    int np;
+    Participante[] P = new Participante[50];
+
+    public Charla(String lugar, String nombreCharla, Speaker speaker) {
+        this.lugar = lugar;
+        this.nombreCharla = nombreCharla;
+        this.S = speaker;
+        this.np = 0;
+    }
+
+    public void agregarParticipante(Participante participante) {
+        if (np < 50) {
+            P[np] = participante;
+            np++;
+        }
+    }
+}
+
+public class Evento {
+    String nombre;
+    Charla[] C = new Charla[50];
+    int no;
+
+    public Evento(String nombre) {
+        this.nombre = nombre;
+        this.no = 0;
+    }
+
+    public void agregarCharla(Charla charla) {
+        if (no < 50) {
+            C[no] = charla;
+            no++;
+        }
+    }
+
+
+    public double edadPromedioParticipantes() {
+        int totalEdades = 0;
+        int totalParticipantes = 0;
+
+        for (int i = 0; i < no; i++) {
+            for (int j = 0; j < C[i].np; j++) {
+                totalEdades += C[i].P[j].persona.edad;
+                totalParticipantes++;
+            }
+        }
+
+        if (totalParticipantes == 0) return 0;
+        return (double) totalEdades / totalParticipantes;
+    }
+    public boolean verificarPersona(String nombreX, String apellidoY) {
+        for (int i = 0; i < no; i++) {
+            if (C[i].S != null && C[i].S.persona.nombre.equals(nombreX) && C[i].S.persona.apellido.equals(apellidoY)) {
+                return true;
+            }
+            for (int j = 0; j < C[i].np; j++) {
+                if (C[i].P[j] != null &&
+                        C[i].P[j].persona.nombre.equals(nombreX) &&
+                        C[i].P[j].persona.apellido.equals(apellidoY)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    public void eliminarCharlasDeSpeaker(String ciSpeaker) {
+        for (int i = 0; i < no; i++) {
+            if (C[i] != null && C[i].S != null &&
+                    C[i].S.persona.nombre.equals(ciSpeaker)) { 
+
+                
+                for (int j = i; j < no - 1; j++) {
+                    C[j] = C[j + 1];
+                }
+                C[no - 1] = null;
+                no--;
+                i--;
+            }
+        }
+    }
+
+
+    public void ordenarCharlasPorParticipantes() {
+        for (int i = 0; i < no - 1; i++) {
+            for (int j = 0; j < no - i - 1; j++) {
+                if (C[j].np < C[j + 1].np) {
+                    // Intercambiar
+                    Charla temp = C[j];
+                    C[j] = C[j + 1];
+                    C[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    public void mostrarCharlas() {
+        for (int i = 0; i < no; i++) {
+            if (C[i] != null) {
+                System.out.println("Charla: " + C[i].nombreCharla + " | Participantes: " + C[i].np);
+            }
+        }
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        Persona persona1 = new Persona("americo", "blu", 25);
+        Persona persona2 = new Persona("agner", "yoel", 30);
+        Persona persona3 = new Persona("aisitiri", "lol", 22);
+        Persona persona4 = new Persona("wassa", "rosa", 28);
+
+
+        Speaker speaker1 = new Speaker(persona1, "Tecnología");
+        Speaker speaker2 = new Speaker(persona2, "Ciencia");
+
+        Participante participante1 = new Participante(persona3, 1001);
+        Participante participante2 = new Participante(persona4, 1002);
+
+
+        Charla charla1 = new Charla("auditorio psi6", "director", speaker1);
+        Charla charla2 = new Charla("sala esrudio", "juegos", speaker2);
+
+        charla1.agregarParticipante(participante1);
+        charla2.agregarParticipante(participante2);
+
+
+        Evento evento = new Evento("conferencia Anual");
+        evento.agregarCharla(charla1);
+        evento.agregarCharla(charla2);
+
+
+        System.out.println("edad promedio: " + evento.edadPromedioParticipantes());
+        System.out.println("americo? " + evento.verificarPersona("americo", "agner"));
+        evento.ordenarCharlasPorParticipantes();
+        evento.mostrarCharlas();
+    }
+}
+
