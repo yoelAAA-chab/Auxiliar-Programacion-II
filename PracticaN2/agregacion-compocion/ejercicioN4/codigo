@@ -1,0 +1,78 @@
+public class Ropa {
+    String tipo;
+    String material;
+
+    public Ropa(String tipo, String material) {
+        this.tipo = tipo;
+        this.material = material;
+    }
+}
+
+
+public class Ropero {
+    String material;
+    Ropa[] prendas;
+    int nroRopas;
+
+    public Ropero(String material) {
+        this.material = material;
+        this.prendas = new Ropa[20];
+        this.nroRopas = 0;
+    }
+    public void agregar(Ropa ropa) {
+        if (nroRopas < 20) {
+            prendas[nroRopas] = ropa;
+            nroRopas++;
+            System.out.println("Prenda agregada");
+        } else {
+            System.out.println("Ropero lleno");
+        }
+    }
+    public void eliminarPrendas(String materialX, String tipoY) {
+        for (int i = 0; i < nroRopas; i++) {
+            if (prendas[i] != null &&
+                    (prendas[i].material.equals(materialX) ||
+                            prendas[i].tipo.equals(tipoY))) {
+                for (int j = i; j < nroRopas - 1; j++) {
+                    prendas[j] = prendas[j + 1];
+                }
+                prendas[nroRopas - 1] = null;
+                nroRopas--;
+                i--;
+                System.out.println("eliminada");
+            }
+        }
+    }
+    public void mostrarPrendas(String materialX, String tipoY) {
+        for (int i = 0; i < nroRopas; i++) {
+            if (prendas[i] != null && prendas[i].material.equals(materialX) && prendas[i].tipo.equals(tipoY)) {
+                System.out.println("Tipo: " + prendas[i].tipo + ", Material: " + prendas[i].material);
+            }
+        }
+    }
+}
+
+
+
+public class Main {
+    public static void main(String[] args) {
+        Ropa ropa1 = new Ropa("parchess", "lana");
+        Ropa ropa2 = new Ropa("caliente", "seda");
+        Ropa ropa3 = new Ropa("parchess", "algodon");
+
+        Ropero ropero1 = new Ropero("madera");
+
+        //b
+        ropero1.agregar(ropa1);
+        ropero1.agregar(ropa2);
+        ropero1.agregar(ropa3);
+
+        // d
+        ropero1.mostrarPrendas("lana", "parchess");
+
+        //c
+        System.out.println("borrando");
+        ropero1.eliminarPrendas("seda", "parchess");
+    }
+}
+
