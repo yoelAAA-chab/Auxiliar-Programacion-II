@@ -1,0 +1,266 @@
+public class Empleado {
+
+    String nombre;
+
+    String cargo;
+
+    double sueldo;
+
+
+
+    public Empleado(String nombre, String cargo, double sueldo) {
+
+        this.nombre = nombre;
+
+        this.cargo = cargo;
+
+        this.sueldo = sueldo;
+
+    }
+
+
+
+    public String getNombre() {
+
+        return nombre;
+
+    }
+
+
+
+    public String getCargo(){
+
+        return cargo;
+
+    }
+
+
+
+    public double getSueldo() {
+
+        return sueldo;
+
+    }
+
+
+
+    public void setSueldo(double sueldo) {
+
+        this.sueldo = sueldo;
+
+    }
+
+
+
+    public void mostrar() {
+
+        System.out.println(this.nombre + " / " + this.cargo + " / " + this.sueldo);
+
+    }
+
+}
+
+
+
+public class Departamento {
+
+    String nombre;
+
+    String area;
+
+    private Empleado[] empleados;
+
+    private int numEmpleados;
+
+
+
+    public Departamento(String nombre, String area) {
+
+        this.nombre = nombre;
+
+        this.area = area;
+
+        this.empleados = new Empleado[100];
+
+        this.numEmpleados = 0;
+
+    }
+
+
+
+    public void agregarEmpleado(Empleado empleado) {
+
+        if (this.numEmpleados < this.empleados.length) {
+
+            this.empleados[this.numEmpleados] = empleado;
+
+            this.numEmpleados++;
+
+            System.out.println("(Empleado '" + empleado.getNombre() + "' agregado a " + this.nombre + ")");
+
+        } else {
+
+            System.out.println(this.nombre + " está lleno.");
+
+        }
+
+    }
+
+
+
+    public void mostrarEmpleados() {
+
+        if (this.numEmpleados == 0) {
+
+            System.out.println("No hay emp ");
+
+        } else {
+
+            for (int i = 0; i < this.numEmpleados; i++) {
+
+                this.empleados[i].mostrar();
+
+            }
+
+        }
+
+    }
+
+
+
+    public void cambioSalario(double porcentajeAumento) {
+
+        for (int i = 0; i < this.numEmpleados; i++) {
+
+            Empleado emp = this.empleados[i];
+
+            double aumento = emp.getSueldo() * (porcentajeAumento / 100.0);
+
+            emp.setSueldo(emp.getSueldo() + aumento);
+
+        }
+
+    }
+
+
+
+    public void moverEmpleadosA(Departamento otroDepartamento) {
+
+        for (int i = 0; i < this.numEmpleados; i++) {
+
+            otroDepartamento.agregarEmpleado(this.empleados[i]);
+
+        }
+
+
+
+        this.numEmpleados = 0;
+
+
+
+        System.out.println("ya se movio");
+
+    }
+
+
+
+    public boolean contieneEmpleado(Empleado empleado) {
+
+        for (int i = 0; i < this.numEmpleados; i++) {
+
+            if (this.empleados[i] == empleado) {
+
+                return true;
+
+            }
+
+        }
+
+        return false;
+
+    }
+
+}
+
+
+
+public class Main {
+
+    public static void main(String[] args){
+
+        //a
+
+        Empleado emp1=new Empleado("ameirco", "director", 1222);
+
+        Empleado emp2=new Empleado("yoel", "vendedor", 3522);
+
+        Empleado emp3=new Empleado("agner", "secretario", 322);
+
+        Empleado emp4=new Empleado("asistiri", "soporte", 4122);
+
+        Empleado emp5=new Empleado("chab", "ninguno", 0);
+
+
+
+        Departamento departamento1 = new Departamento("Ventas", "control");
+
+        Departamento departamento2 = new Departamento("asistencia", "comercial");
+
+        departamento1.agregarEmpleado(emp1);
+
+        departamento1.agregarEmpleado(emp2);
+
+        departamento1.agregarEmpleado(emp3);
+
+        departamento1.agregarEmpleado(emp4);
+
+        departamento1.agregarEmpleado(emp5);
+
+        //b
+
+        System.out.println("departamento1");
+
+        departamento1.mostrarEmpleados();
+
+        System.out.println("departamento 2");
+
+        departamento2.mostrarEmpleados();
+
+
+
+        //c
+
+        departamento1.cambioSalario(10);
+
+        //d
+
+        if (departamento2.contieneEmpleado(emp1)) {
+
+            System.out.println(emp1.getNombre()+ " pertenere a asistencia.");
+
+        } else {
+
+            System.out.println(emp1.getNombre()+ " no pertenece a aistencia.");
+
+        }
+
+        //e
+
+        departamento1.moverEmpleadosA(departamento2);
+
+        System.out.println("departamento1");
+
+        departamento1.mostrarEmpleados();
+
+        System.out.println("departamento 2");
+
+        departamento2.mostrarEmpleados();
+
+    }
+
+}
+
+
+
+
+
