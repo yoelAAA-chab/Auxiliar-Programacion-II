@@ -1,0 +1,216 @@
+import java.io.*;
+import java.util.*;
+
+class Medicamento implements Serializable {
+    String nombre;
+    int sucarmento;
+    String tipo;
+    double precio;
+}
+
+
+
+
+class Farmacia implements Serializable {
+    String nombre;
+    int sucursal;
+    String direccion;
+    Medicamento[] medicamentos = new Medicamento[100];
+    int cont = 0;
+}
+
+
+
+
+  
+class ArchFarmacia {
+    String na = "farmacias.dat";
+    
+    public void crearArchivo() throws IOException {
+        File f = new File(na);
+        if (!f.exists()) {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+            out.close();
+        }
+    }
+    
+    public void adiccionario() throws IOException, ClassNotFoundException {
+        ArrayList<Farmacia> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (f.exists() && f.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+            lista = (ArrayList<Farmacia>) in.readObject();
+            in.close();
+        }
+        
+        Scanner s = new Scanner(System.in);
+        Farmacia farm = new Farmacia();
+        
+        System.out.print("nom farmacia: ");
+        farm.nombre = s.next();
+        System.out.print("sucursal: ");
+        farm.sucursal = s.nextInt();
+        System.out.print("direccion: ");
+        farm.direccion = s.next();
+        
+        char mas;
+
+
+
+
+      
+        do {
+            if (farm.cont < 100) {
+                Medicamento med = new Medicamento();
+                System.out.print("nom med: ");
+                med.nombre = s.next();
+                System.out.print("sucarmento: ");
+                med.sucarmento = s.nextInt();
+                System.out.print("tipo: ");
+                med.tipo = s.next();
+                System.out.print("precio: ");
+                med.precio = s.nextDouble();
+                farm.medicamentos[farm.cont] = med;
+                farm.cont++;
+            }
+            System.out.print("otro med? s/n: ");
+            mas = s.next().charAt(0);
+        } while (mas == 's');
+        
+        lista.add(farm);
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public void listar() throws IOException, ClassNotFoundException {
+        ArrayList<Farmacia> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) {
+            System.out.println("nada");
+            return;
+        }
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Farmacia>) in.readObject();
+        in.close();
+        
+        for (Farmacia farm : lista) {
+            System.out.println(farm.nombre + " " + farm.sucursal + " " + farm.direccion);
+        }
+    }
+    
+    public void mostrarMedicamentosTos(int x) throws IOException, ClassNotFoundException {
+        ArrayList<Farmacia> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Farmacia>) in.readObject();
+        in.close();
+        
+        for (Farmacia farm : lista) {
+            if (farm.sucursal == x) {
+                for (int i = 0; i < farm.cont; i++) {
+                    if (farm.medicamentos[i].tipo.equalsIgnoreCase("tos")) {
+                        System.out.println(farm.medicamentos[i].nombre + " " + farm.medicamentos[i].precio);
+                    }
+                }
+            }
+        }
+    }
+    
+    public void buscarTapsin() throws IOException, ClassNotFoundException {
+        ArrayList<Farmacia> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Farmacia>) in.readObject();
+        in.close();
+        
+        for (Farmacia farm : lista) {
+            for (int i = 0; i < farm.cont; i++) {
+                if (farm.medicamentos[i].nombre.equalsIgnoreCase("Tapsin")) {
+                    System.out.println(farm.sucursal + " " + farm.direccion);
+                    break;
+                }
+            }
+        }
+    }
+    
+    public void ordenarPorDireccion() throws IOException, ClassNotFoundException {
+        ArrayList<Farmacia> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Farmacia>) in.readObject();
+        in.close();
+        
+        for (int i = 0; i < lista.size()-1; i++) {
+            for (int j = i+1; j < lista.size(); j++) {
+                if (lista.get(i).direccion.compareTo(lista.get(j).direccion) > 0) {
+                    Farmacia temp = lista.get(i);
+                    lista.set(i, lista.get(j));
+                    lista.set(j, temp);
+                }
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+}
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ArchFarmacia arch = new ArchFarmacia();
+        Scanner s = new Scanner(System.in);
+        int op = 0;
+        
+        while (op != 7) {
+            System.out.println("1 crear 2 agregar 3 listar 4 med tos x 5 buscar tapsin 6 ordenar dir 7 salir");
+            op = s.nextInt();
+            
+            if (op == 1) {
+                arch.crearArchivo();
+                System.out.println("creado");
+            }
+            
+            if (op == 2) {
+                arch.adiccionario();
+                System.out.println("agregado");
+            }
+            
+            if (op == 3) {
+                arch.listar();
+            }
+            
+            if (op == 4) {
+                System.out.print("sucursal x: ");
+                int x = s.nextInt();
+                arch.mostrarMedicamentosTos(x);
+            }
+            
+            if (op == 5) {
+                arch.buscarTapsin();
+            }
+            
+            if (op == 6) {
+                arch.ordenarPorDireccion();
+                System.out.println("ordenado");
+            }
+        }
+        
+        s.close();
+    }
+    //un 10 auxi pra el agner
+}
