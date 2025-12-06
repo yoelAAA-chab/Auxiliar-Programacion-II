@@ -1,0 +1,166 @@
+import java.io.*;
+import java.util.*;
+
+class Producto implements Serializable {
+    int codigo;
+    String nombre;
+    float precio;
+}
+
+
+
+
+
+
+class ArchivoProducto {
+    String nomA;
+    
+    public ArchivoProducto(String n) {
+        nomA = n;
+    }
+    
+    public void crearArchivo() throws IOException {
+        File f = new File(nomA);
+        if (!f.exists()) {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+            out.close();
+        }
+    }
+    
+    public void guardaProducto(Producto p) throws IOException, ClassNotFoundException {
+        ArrayList<Producto> lista = new ArrayList<>();
+        File f = new File(nomA);
+        
+        if (f.exists() && f.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+            lista = (ArrayList<Producto>) in.readObject();
+            in.close();
+        }
+        
+        lista.add(p);
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public Producto buscaProducto(int c) throws IOException, ClassNotFoundException {
+        ArrayList<Producto> lista = new ArrayList<>();
+        File f = new File(nomA);
+        
+        if (!f.exists() || f.length() == 0) return null;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Producto>) in.readObject();
+        in.close();
+        
+        for (Producto prod : lista) {
+            if (prod.codigo == c) {
+                return prod;
+            }
+        }
+        return null;
+    }
+    
+    public float promedioPrecios() throws IOException, ClassNotFoundException {
+        ArrayList<Producto> lista = new ArrayList<>();
+        File f = new File(nomA);
+        
+        if (!f.exists() || f.length() == 0) return 0;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Producto>) in.readObject();
+        in.close();
+        
+        if (lista.isEmpty()) return 0;
+        
+        float suma = 0;
+        for (Producto prod : lista) {
+            suma += prod.precio;
+        }
+        return suma / lista.size();
+    }
+    
+    public Producto masCaro() throws IOException, ClassNotFoundException {
+        ArrayList<Producto> lista = new ArrayList<>();
+        File f = new File(nomA);
+        
+        if (!f.exists() || f.length() == 0) return null;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Producto>) in.readObject();
+        in.close();
+        
+        if (lista.isEmpty()) return null;
+        
+        Producto caro = lista.get(0);
+        for (Producto prod : lista) {
+            if (prod.precio > caro.precio) {
+                caro = prod;
+            }
+        }
+        return caro;
+    }
+}
+
+
+
+
+
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ArchivoProducto arch = new ArchivoProducto("productos.dat");
+        Scanner s = new Scanner(System.in);
+        int op = 0;
+        
+        while (op != 7) {
+            System.out.println("1 crear 2 guardar 3 buscar 4 prom 5 caro 6 salir");
+            op = s.nextInt();
+            
+            if (op == 1) {
+                arch.crearArchivo();
+                System.out.println("listo");
+            }
+            
+            if (op == 2) {
+                Producto p = new Producto();
+                System.out.print("cod: ");
+                p.codigo = s.nextInt();
+                System.out.print("nom: ");
+                p.nombre = s.next();
+                System.out.print("prec: ");
+                p.precio = s.nextFloat();
+                arch.guardaProducto(p);
+                System.out.println("guardado");
+            }
+            
+            if (op == 3) {
+                System.out.print("cod a buscar: ");
+                int cod = s.nextInt();
+                Producto encontrado = arch.buscaProducto(cod);
+                if (encontrado != null) {
+                    System.out.println(encontrado.nombre + " " + encontrado.precio);
+                } else {
+                    System.out.println("no hay");
+                }
+            }
+            
+            if (op == 4) {
+                float prom = arch.promedioPrecios();
+                System.out.println("promedio: " + prom);
+            }
+            
+            if (op == 5) {
+                Producto caro = arch.masCaro();
+                if (caro != null) {
+                    System.out.println("caro: " + caro.nombre + " " + caro.precio);
+                }
+            }
+        }
+        
+        s.close();
+    }
+}
+
+//un 10 auxii soy agner!!
