@@ -1,0 +1,177 @@
+import java.io.*;
+import java.util.*;
+
+class Trabajador implements Serializable {
+    String nombre;
+    int carnet;
+    double salario;
+}
+
+
+
+class ArchivoTrabajador {
+    String nombreArch = "trabajadores.dat";
+    
+    public void crearArchivo() throws IOException {
+        File f = new File(nombreArch);
+        if (!f.exists()) {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+            out.close();
+        }
+    }
+    
+    public void guardarTrabajador(Trabajador t) throws IOException, ClassNotFoundException {
+        ArrayList<Trabajador> lista = new ArrayList<>();
+        File f = new File(nombreArch);
+        
+        if (f.exists() && f.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+            lista = (ArrayList<Trabajador>) in.readObject();
+            in.close();
+        }
+        
+        lista.add(t);
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+
+
+
+
+    public void aumentaSalario(int a, Trabajador t) throws IOException, ClassNotFoundException {
+        ArrayList<Trabajador> lista = new ArrayList<>();
+        File f = new File(nombreArch);
+        
+        if (f.exists() && f.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+            lista = (ArrayList<Trabajador>) in.readObject();
+            in.close();
+        }
+        
+        for (Trabajador tr : lista) {
+            if (tr.carnet == t.carnet) {
+                tr.salario += tr.salario * a / 100;
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public Trabajador mayorSalario() throws IOException, ClassNotFoundException {
+        ArrayList<Trabajador> lista = new ArrayList<>();
+        File f = new File(nombreArch);
+        
+        if (!f.exists() || f.length() == 0) return null;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Trabajador>) in.readObject();
+        in.close();
+        
+        if (lista.isEmpty()) return null;
+        
+        Trabajador mayor = lista.get(0);
+        for (Trabajador t : lista) {
+            if (t.salario > mayor.salario) {
+                mayor = t;
+            }
+        }
+        return mayor;
+    }
+    
+    public void ordenarPorSalario() throws IOException, ClassNotFoundException {
+        ArrayList<Trabajador> lista = new ArrayList<>();
+        File f = new File(nombreArch);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Trabajador>) in.readObject();
+        in.close();
+        
+        for (int i = 0; i < lista.size()-1; i++) {
+            for (int j = i+1; j < lista.size(); j++) {
+                if (lista.get(i).salario > lista.get(j).salario) {
+                    Trabajador temp = lista.get(i);
+                    lista.set(i, lista.get(j));
+                    lista.set(j, temp);
+                }
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+}
+
+
+
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ArchivoTrabajador arch = new ArchivoTrabajador();
+        Scanner s = new Scanner(System.in);
+        int op = 0;
+        
+        while (op != 6) {
+            System.out.println("1 crear 2 guaardar 3 aumentar 4 mayor 5 ordenar 6 salir");
+            op = s.nextInt();
+
+
+          
+            if (op == 1) {
+                arch.crearArchivo();
+                System.out.println("archivo creado");
+            }
+
+          
+            if (op == 2) {
+                Trabajador t = new Trabajador();
+                System.out.print("nom: ");
+                t.nombre = s.next();
+                System.out.print("carnet: ");
+                t.carnet = s.nextInt();
+                System.out.print("salario: ");
+                t.salario = s.nextDouble();
+                arch.guardarTrabajador(t);
+                System.out.println("guardado");
+            }
+
+
+          
+            if (op == 3) {
+                Trabajador t = new Trabajador();
+                System.out.print("carnet: ");
+                t.carnet = s.nextInt();
+                System.out.print("% aumento: ");
+                int aum = s.nextInt();
+                arch.aumentaSalario(aum, t);
+                System.out.println("aumentado");
+            }
+            
+            if (op == 4) {
+                Trabajador mayor = arch.mayorSalario();
+                if (mayor != null) {
+                    System.out.println("mayor: " + mayor.nombre + " " + mayor.salario);
+                }
+            }
+
+          
+            
+            if (op == 5) {
+                arch.ordenarPorSalario();
+                System.out.println("ordenado");
+            }
+        }
+        
+        s.close();
+    }
+}
+
+
+
+//un 10 auxi agner 
