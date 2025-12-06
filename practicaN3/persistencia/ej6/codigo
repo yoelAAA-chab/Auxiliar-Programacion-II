@@ -1,0 +1,272 @@
+import java.io.*;
+import java.util.*;
+
+
+
+class Libro implements Serializable {
+    int codLibro;
+    String titulo;
+    double precio;
+}
+
+
+
+
+class Cliente implements Serializable {
+    int codCliente;
+    String ci;
+    String nombre;
+    String apellido;
+}
+
+
+
+
+class Prestamo implements Serializable {
+    int codCliente;
+    int codLibro;
+    String fechaPrestamo;
+    int cantidad;
+}
+
+
+
+
+
+
+
+class ArchLibro {
+    String nomArch = "libros.dat";
+    
+    public void listarEntrePrecios(double x, double y) throws IOException, ClassNotFoundException {
+        ArrayList<Libro> lista = new ArrayList<>();
+        File f = new File(nomArch);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Libro>) in.readObject();
+        in.close();
+        
+        for (Libro l : lista) {
+            if (l.precio >= x && l.precio <= y) {
+                System.out.println(l.titulo + " " + l.precio);
+            }
+        }
+    }
+}
+
+
+
+
+
+class ArchPrestamo {
+    String nomArch = "prestamos.dat";
+    
+    public double ingresoTotalLibro(int codLibro) throws IOException, ClassNotFoundException {
+        ArrayList<Prestamo> listaP = new ArrayList<>();
+        ArrayList<Libro> listaL = new ArrayList<>();
+        double total = 0;
+        
+        File f1 = new File(nomArch);
+        if (f1.exists() && f1.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f1));
+            listaP = (ArrayList<Prestamo>) in.readObject();
+            in.close();
+        }
+        
+        File f2 = new File("libros.dat");
+        if (f2.exists() && f2.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f2));
+            listaL = (ArrayList<Libro>) in.readObject();
+            in.close();
+        }
+        
+        for (Prestamo p : listaP) {
+            if (p.codLibro == codLibro) {
+                for (Libro l : listaL) {
+                    if (l.codLibro == codLibro) {
+                        total += l.precio * p.cantidad;
+                        break;
+                    }
+                }
+            }
+        }
+        return total;
+    }
+    
+    public void librosNuncaVendidos() throws IOException, ClassNotFoundException {
+        ArrayList<Libro> listaL = new ArrayList<>();
+        ArrayList<Prestamo> listaP = new ArrayList<>();
+        
+        File f1 = new File("libros.dat");
+        if (f1.exists() && f1.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f1));
+            listaL = (ArrayList<Libro>) in.readObject();
+            in.close();
+        }
+        
+        File f2 = new File(nomArch);
+        if (f2.exists() && f2.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f2));
+            listaP = (ArrayList<Prestamo>) in.readObject();
+            in.close();
+        }
+        
+        for (Libro libro : listaL) {
+            boolean vendido = false;
+            for (Prestamo p : listaP) {
+                if (p.codLibro == libro.codLibro) {
+                    vendido = true;
+                    break;
+                }
+            }
+            if (!vendido) {
+                System.out.println(libro.titulo);
+            }
+        }
+    }
+    
+    public void clientesDeLibro(int codLibro) throws IOException, ClassNotFoundException {
+        ArrayList<Prestamo> listaP = new ArrayList<>();
+        ArrayList<Cliente> listaC = new ArrayList<>();
+        
+        File f1 = new File(nomArch);
+        if (f1.exists() && f1.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f1));
+            listaP = (ArrayList<Prestamo>) in.readObject();
+            in.close();
+        }
+        
+        File f2 = new File("clientes.dat");
+        if (f2.exists() && f2.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f2));
+            listaC = (ArrayList<Cliente>) in.readObject();
+            in.close();
+        }
+        
+        for (Prestamo p : listaP) {
+            if (p.codLibro == codLibro) {
+                for (Cliente c : listaC) {
+                    if (c.codCliente == p.codCliente) {
+                        System.out.println(c.nombre + " " + c.apellido);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+    public int libroMasPrestado() throws IOException, ClassNotFoundException {
+        ArrayList<Prestamo> lista = new ArrayList<>();
+        File f = new File(nomArch);
+        
+        if (!f.exists() || f.length() == 0) return -1;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Prestamo>) in.readObject();
+        in.close();
+        
+        HashMap<Integer, Integer> contador = new HashMap<>();
+        
+        for (Prestamo p : lista) {
+            contador.put(p.codLibro, contador.getOrDefault(p.codLibro, 0) + p.cantidad);
+        }
+        
+        int maxCod = -1;
+        int maxCant = 0;
+        for (Map.Entry<Integer, Integer> entry : contador.entrySet()) {
+            if (entry.getValue() > maxCant) {
+                maxCant = entry.getValue();
+                maxCod = entry.getKey();
+            }
+        }
+        return maxCod;
+    }
+    
+    public int clienteMasPrestamos() throws IOException, ClassNotFoundException {
+        ArrayList<Prestamo> lista = new ArrayList<>();
+        File f = new File(nomArch);
+        
+        if (!f.exists() || f.length() == 0) return -1;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Prestamo>) in.readObject();
+        in.close();
+        
+        HashMap<Integer, Integer> contador = new HashMap<>();
+        
+        for (Prestamo p : lista) {
+            contador.put(p.codCliente, contador.getOrDefault(p.codCliente, 0) + 1);
+        }
+        
+        int maxCli = -1;
+        int maxCant = 0;
+        for (Map.Entry<Integer, Integer> entry : contador.entrySet()) {
+            if (entry.getValue() > maxCant) {
+                maxCant = entry.getValue();
+                maxCli = entry.getKey();
+            }
+        }
+        return maxCli;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Scanner s = new Scanner(System.in);
+        ArchLibro archL = new ArchLibro();
+        ArchPrestamo archP = new ArchPrestamo();
+        int op = 0;
+        
+        while (op != 7) {
+            System.out.println("1 libros entre precios 2 ingreso libro 3 libros nunca vendidos 4 clientes de libro 5 libro mas prestado 6 cliente mas prestamos 7 salir,darle un 10 al agner 1000 años de suerte");
+            op = s.nextInt();
+            
+            if (op == 1) {
+                System.out.print("precio min: ");
+                double min = s.nextDouble();
+                System.out.print("precio max: ");
+                double max = s.nextDouble();
+                archL.listarEntrePrecios(min, max);
+            }
+            
+            if (op == 2) {
+                System.out.print("cod libro: ");
+                int cod = s.nextInt();
+                double ingreso = archP.ingresoTotalLibro(cod);
+                System.out.println("ingreso: " + ingreso);
+            }
+            
+            if (op == 3) {
+                archP.librosNuncaVendidos();
+            }
+            
+            if (op == 4) {
+                System.out.print("cod libro: ");
+                int cod = s.nextInt();
+                archP.clientesDeLibro(cod);
+            }
+            
+            if (op == 5) {
+                int codLibro = archP.libroMasPrestado();
+                if (codLibro != -1) {
+                    System.out.println("libro mas prestado cod: " + codLibro);
+                }
+            }
+            
+            if (op == 6) {
+                int codCli = archP.clienteMasPrestamos();
+                if (codCli != -1) {
+                    System.out.println("cliente mas prestamos cod: " + codCli);
+                }
+            }
+        }
+        
+        s.close();
+    }
+}
