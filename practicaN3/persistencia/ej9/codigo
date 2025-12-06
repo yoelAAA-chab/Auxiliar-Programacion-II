@@ -1,0 +1,285 @@
+import java.io.*;
+import java.util.*;
+
+
+
+
+
+class Animal implements Serializable {
+    String especie;
+    String nombre;
+    int cantidad;
+}
+
+
+
+
+
+class Zoologico implements Serializable {
+    int id;
+    String nombre;
+    int moAnimals;
+    Animal[] animales = new Animal[30];
+    int cont = 0;
+}
+
+
+  
+
+class ArchZoo {
+    String nombre = "zoologicos.dat";
+    
+    public void crear() throws IOException {
+        File f = new File(nombre);
+        if (!f.exists()) {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+            out.close();
+        }
+    }
+    
+    public void modificar(int idZoo) throws IOException, ClassNotFoundException {
+        ArrayList<Zoologico> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Zoologico>) in.readObject();
+        in.close();
+        
+        Scanner s = new Scanner(System.in);
+        for (Zoologico z : lista) {
+            if (z.id == idZoo) {
+                System.out.print("nuevo nombre: ");
+                z.nombre = s.next();
+                break;
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public void eliminar(int idZoo) throws IOException, ClassNotFoundException {
+        ArrayList<Zoologico> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Zoologico>) in.readObject();
+        in.close();
+        
+        for (int i = 0; i < lista.size(); i++) {
+            if (lista.get(i).id == idZoo) {
+                lista.remove(i);
+                i--;
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public void listarMayorVariedad() throws IOException, ClassNotFoundException {
+        ArrayList<Zoologico> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Zoologico>) in.readObject();
+        in.close();
+        
+        int maxVariedad = 0;
+        for (Zoologico z : lista) {
+            if (z.cont > maxVariedad) {
+                maxVariedad = z.cont;
+            }
+        }
+        
+        for (Zoologico z : lista) {
+            if (z.cont == maxVariedad) {
+                System.out.println(z.nombre + " variedad: " + z.cont);
+            }
+        }
+    }
+    
+    public void listarYeliminarVacios() throws IOException, ClassNotFoundException {
+        ArrayList<Zoologico> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Zoologico>) in.readObject();
+        in.close();
+        
+        System.out.println("zoos vacios:");
+        for (int i = 0; i < lista.size(); i++) {
+            if (lista.get(i).cont == 0) {
+                System.out.println(lista.get(i).nombre);
+                lista.remove(i);
+                i--;
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public void animalesEspecieX(String especie) throws IOException, ClassNotFoundException {
+        ArrayList<Zoologico> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Zoologico>) in.readObject();
+        in.close();
+        
+        for (Zoologico z : lista) {
+            for (int i = 0; i < z.cont; i++) {
+                if (z.animales[i].especie.equals(especie)) {
+                    System.out.println(z.animales[i].nombre + " en zoo " + z.nombre);
+                }
+            }
+        }
+    }
+    
+    public void moverAnimales(int idX, int idY) throws IOException, ClassNotFoundException {
+        ArrayList<Zoologico> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Zoologico>) in.readObject();
+        in.close();
+        
+        Zoologico zooX = null;
+        Zoologico zooY = null;
+        
+        for (Zoologico z : lista) {
+            if (z.id == idX) zooX = z;
+            if (z.id == idY) zooY = z;
+        }
+        
+        if (zooX != null && zooY != null && zooX.cont > 0) {
+            for (int i = 0; i < zooX.cont; i++) {
+                if (zooY.cont < 30) {
+                    zooY.animales[zooY.cont] = zooX.animales[i];
+                    zooY.cont++;
+                }
+            }
+            zooX.cont = 0; 
+
+          
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+}
+
+
+
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ArchZoo arch = new ArchZoo();
+        Scanner s = new Scanner(System.in);
+        int op = 0;
+        
+        while (op != 7) {
+            System.out.println("1 lisya");
+            op = s.nextInt();
+            System.out.println("auxi un 10 porfa agner asistiri");
+            if (op == 1) {
+                arch.crear();
+                System.out.println("creado");
+            }
+            
+            if (op == 2) {
+                ArrayList<Zoologico> lista = new ArrayList<>();
+                File f = new File(arch.nombre);
+                if (f.exists() && f.length() > 0) {
+                    ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+                    lista = (ArrayList<Zoologico>) in.readObject();
+                    in.close();
+                }
+                Zoologico z = new Zoologico();
+                System.out.print("id: ");
+                z.id = s.nextInt();
+                System.out.print("nombre zoo: ");
+                z.nombre = s.next();
+                System.out.print("cuantos animales agregar: ");
+                int cant = s.nextInt();
+
+
+              
+                for (int i = 0; i < cant && z.cont < 30; i++) {
+                    Animal a = new Animal();
+                    System.out.print("especie: ");
+                    a.especie = s.next();
+                    System.out.print("nombre animal: ");
+                    a.nombre = s.next();
+                    System.out.print("cantidad: ");
+                    a.cantidad = s.nextInt();
+                    z.animales[z.cont] = a;
+                    z.cont++;
+                }
+
+              
+                lista.add(z);
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+                out.writeObject(lista);
+                out.close();
+                System.out.println("agregado");
+            }
+            
+            if (op == 3) {
+                System.out.print("id zoo a modificar: ");
+                int id = s.nextInt();
+                arch.modificar(id);
+                System.out.println("modificado");
+            }
+            
+            if (op == 4) {
+                System.out.print("id zoo a eliminar: ");
+                int id = s.nextInt();
+                arch.eliminar(id);
+                System.out.println("eliminado");
+            }
+            
+            if (op == 5) {
+                arch.listarMayorVariedad();
+            }
+            
+            if (op == 6) {
+                arch.listarYeliminarVacios();
+            }
+            
+            if (op == 7) {
+                System.out.print("especie: ");
+                String esp = s.next();
+                arch.animalesEspecieX(esp);
+            }
+            
+            if (op == 8) {
+                System.out.print("id zoo origen: ");
+                int idX = s.nextInt();
+                System.out.print("id zoo destino: ");
+                int idY = s.nextInt();
+                arch.moverAnimales(idX, idY);
+                System.out.println("movidos");
+            }
+        }
+        
+        s.close();
+    }
+}
