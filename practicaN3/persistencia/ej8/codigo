@@ -1,0 +1,233 @@
+import java.io.*;
+import java.util.*;
+
+
+
+
+class Alimento implements Serializable {
+    String nombre;
+    String fechaVencimiento;
+    int cantidad;
+}
+
+
+
+
+
+class ArchRefri {
+    String nombre = "refri.dat";
+    public void crear() throws IOException {
+        File f = new File(nombre);
+        if (!f.exists()) {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+            out.close();
+        }
+    }
+    
+    public void modificarPorNombre(String nom) throws IOException, ClassNotFoundException {
+        ArrayList<Alimento> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Alimento>) in.readObject();
+        in.close();
+        
+        Scanner s = new Scanner(System.in);
+        for (Alimento a : lista) {
+            if (a.nombre.equals(nom)) {
+                System.out.print("nueva fecha: ");
+                a.fechaVencimiento = s.next();
+                System.out.print("nueva cantidad: ");
+                a.cantidad = s.nextInt();
+                break;
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public void eliminarPorNombre(String nom) throws IOException, ClassNotFoundException {
+        ArrayList<Alimento> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Alimento>) in.readObject();
+        in.close();
+        
+        for (int i = 0; i < lista.size(); i++) {
+            if (lista.get(i).nombre.equals(nom)) {
+                lista.remove(i);
+                i--;
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public void caducaronAntesDe(String fechaX) throws IOException, ClassNotFoundException {
+        ArrayList<Alimento> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Alimento>) in.readObject();
+        in.close();
+        
+
+        for (Alimento a : lista) {
+            if (a.fechaVencimiento.compareTo(fechaX) < 0) {
+                System.out.println(a.nombre + " " + a.fechaVencimiento);
+            }
+        }
+    }
+    
+    public void eliminarCantidadCero() throws IOException, ClassNotFoundException {
+        ArrayList<Alimento> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Alimento>) in.readObject();
+        in.close();
+        
+        for (int i = 0; i < lista.size(); i++) {
+            if (lista.get(i).cantidad == 0) {
+                lista.remove(i);
+                i--;
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public void yaVencidos(String hoy) throws IOException, ClassNotFoundException {
+        ArrayList<Alimento> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Alimento>) in.readObject();
+        in.close();
+        
+        for (Alimento a : lista) {
+            if (a.fechaVencimiento.compareTo(hoy) < 0) {
+                System.out.println(a.nombre + " vencido " + a.fechaVencimiento);
+            }
+        }
+    }
+    
+    public Alimento masCantidad() throws IOException, ClassNotFoundException {
+        ArrayList<Alimento> lista = new ArrayList<>();
+        File f = new File(nombre);
+        
+        if (!f.exists() || f.length() == 0) return null;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Alimento>) in.readObject();
+        in.close();
+        
+        if (lista.isEmpty()) return null;
+        
+        Alimento max = lista.get(0);
+        for (Alimento a : lista) {
+            if (a.cantidad > max.cantidad) {
+                max = a;
+            }
+        }
+        return max;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ArchRefri arch = new ArchRefri();
+        Scanner s = new Scanner(System.in);
+        int op = 0;
+        
+        while (op != 8) {
+            System.out.println("1 crea... lista un 10 auxi");
+            op = s.nextInt();
+            
+            if (op == 1) {
+                arch.crear();
+                System.out.println("creado");
+            }
+            
+            if (op == 2) {
+                // agregar
+                ArrayList<Alimento> lista = new ArrayList<>();
+                File f = new File(arch.nombre);
+                if (f.exists() && f.length() > 0) {
+                    ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+                    lista = (ArrayList<Alimento>) in.readObject();
+                    in.close();
+                }
+                Alimento a = new Alimento();
+                System.out.print("nombre: ");
+                a.nombre = s.next();
+                System.out.print("fecha venc: ");
+                a.fechaVencimiento = s.next();
+                System.out.print("cantidad: ");
+                a.cantidad = s.nextInt();
+                lista.add(a);
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+                out.writeObject(lista);
+                out.close();
+                System.out.println("agregado");
+            }
+            
+            if (op == 3) {
+                System.out.print("nombre a modificar: ");
+                String nom = s.next();
+                arch.modificarPorNombre(nom);
+                System.out.println("modificado");
+            }
+            
+            if (op == 4) {
+                System.out.print("nombre a eliminar: ");
+                String nom = s.next();
+                arch.eliminarPorNombre(nom);
+                System.out.println("eliminado");
+            }
+            
+            if (op == 5) {
+                System.out.print("fecha X (ej 2024-12-01): ");
+                String fecha = s.next();
+                arch.caducaronAntesDe(fecha);
+            }
+            
+            if (op == 6) {
+                arch.eliminarCantidadCero();
+                System.out.println("eliminados cero");
+            }
+            
+            if (op == 7) {
+                System.out.print("fecha hoy: ");
+                String hoy = s.next();
+                arch.yaVencidos(hoy);
+            }
+            
+            if (op == 8) {
+                Alimento max = arch.masCantidad();
+                if (max != null) {
+                    System.out.println("mas cantidad: " + max.nombre + " " + max.cantidad);
+                }
+            }
+        }
+        
+        s.close();
+    }
+}
