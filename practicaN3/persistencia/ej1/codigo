@@ -1,0 +1,92 @@
+import java.io.*;
+import java.util.*;
+
+class Charango implements Serializable {
+    String material;
+    int nroCuerdas;
+    boolean[] cuerdas = new boolean[10];
+}
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ArrayList<Charango> lista = new ArrayList<>();
+        File f = new File("charangos.dat");
+        
+        if (f.exists()) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+            lista = (ArrayList<Charango>) in.readObject();
+            in.close();
+        }
+        
+        Scanner s = new Scanner(System.in);
+        int op = 0;
+        
+        while (op != 6) {
+            System.out.println("1 agregar 2 quitar 3 ver x 4 ver 10 5 orden 6 fin");
+            op = s.nextInt();
+            
+            if (op == 1) {
+                Charango c = new Charango();
+                System.out.print("mat: ");
+                c.material = s.next();
+                System.out.print("cuer: ");
+                c.nroCuerdas = s.nextInt();
+                for (int i = 0; i < 10; i++) {
+                    c.cuerdas[i] = Math.random() > 0.5;
+                }
+                lista.add(c);
+            }
+            
+            if (op == 2) {
+                for (int i = 0; i < lista.size(); i++) {
+                    int cont = 0;
+                    for (int j = 0; j < 10; j++) {
+                        if (!lista.get(i).cuerdas[j]) cont++;
+                    }
+                    if (cont > 6) {
+                        lista.remove(i);
+                        i--;
+                    }
+                }
+            }
+            
+            if (op == 3) {
+                System.out.print("mat x: ");
+                String mx = s.next();
+                for (Charango ch : lista) {
+                    if (ch.material.equals(mx)) {
+                        System.out.println(ch.material + " " + ch.nroCuerdas);
+                    }
+                }
+            }
+            
+            if (op == 4) {
+                for (Charango ch : lista) {
+                    if (ch.nroCuerdas == 10) {
+                        System.out.println(ch.material);
+                    }
+                }
+            }
+            
+            if (op == 5) {
+                for (int i = 0; i < lista.size()-1; i++) {
+                    for (int j = i+1; j < lista.size(); j++) {
+                        if (lista.get(i).material.compareTo(lista.get(j).material) > 0) {
+                            Charango temp = lista.get(i);
+                            lista.set(i, lista.get(j));
+                            lista.set(j, temp);
+                        }
+                    }
+                }
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+        s.close();
+    }
+}
+
+//un 10 auxi porfa
+//agner asistiri
