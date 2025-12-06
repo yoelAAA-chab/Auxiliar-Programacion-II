@@ -1,0 +1,272 @@
+import java.io.*;
+import java.util.*;
+
+
+
+
+class Persona implements Serializable {
+    String nombre;
+    String apellidoPaterno;
+    String apellidoMaterno;
+    int ci;
+}
+
+
+
+
+class Niño extends Persona {
+    int edad;
+    String peso;
+    String talla;
+}
+
+
+
+
+
+class ArchNiño {
+    String na = "ninos.dat";
+    
+    public void crear() throws IOException {
+        File f = new File(na);
+        if (!f.exists()) {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+            out.close();
+        }
+    }
+    
+    public void agregar() throws IOException, ClassNotFoundException {
+        ArrayList<Niño> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (f.exists() && f.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+            lista = (ArrayList<Niño>) in.readObject();
+            in.close();
+        }
+        
+        Scanner s = new Scanner(System.in);
+        char otro;
+
+
+  
+        do {
+            Niño n = new Niño();
+            System.out.print("nombre: ");
+            n.nombre = s.next();
+            System.out.print("apellidoP: ");
+            n.apellidoPaterno = s.next();
+            System.out.print("apellidoM: ");
+            n.apellidoMaterno = s.next();
+            System.out.print("ci: ");
+            n.ci = s.nextInt();
+            System.out.print("edad: ");
+            n.edad = s.nextInt();
+            System.out.print("peso: ");
+            n.peso = s.next();
+            System.out.print("talla: ");
+            n.talla = s.next();
+            
+            lista.add(n);
+            
+            System.out.print("otro? s/n: ");
+            otro = s.next().charAt(0);
+        } while (otro == 's');
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+    
+    public void listar() throws IOException, ClassNotFoundException {
+        ArrayList<Niño> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) {
+            System.out.println("nada");
+            return;
+        }
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Niño>) in.readObject();
+        in.close();
+        
+        for (Niño n : lista) {
+            System.out.println(n.nombre + " " + n.edad + " " + n.peso + " " + n.talla);
+        }
+    }
+    
+    public int pesoAdecuado() throws IOException, ClassNotFoundException {
+        ArrayList<Niño> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) return 0;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Niño>) in.readObject();
+        in.close();
+        
+        int cont = 0;
+        // supongamos que peso adecuado es si tiene mas de 5 años y peso mayor a 20
+        for (Niño n : lista) {
+            if (n.edad > 5 && Integer.parseInt(n.peso) > 20) {
+                cont++;
+            }
+        }
+        return cont;
+    }
+
+
+
+
+    public void niñosInadecuados() throws IOException, ClassNotFoundException {
+        ArrayList<Niño> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Niño>) in.readObject();
+        in.close();
+        
+        for (Niño n : lista) {
+            if (n.edad > 5 && Integer.parseInt(n.peso) < 15) {
+                System.out.println(n.nombre + " peso bajo");
+            }
+            if (n.edad > 5 && Integer.parseInt(n.talla) < 100) {
+                System.out.println(n.nombre + " talla baja");
+            }
+        }
+    }
+    
+    public double promedioEdad() throws IOException, ClassNotFoundException {
+        ArrayList<Niño> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) return 0;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Niño>) in.readObject();
+        in.close();
+        
+        if (lista.isEmpty()) return 0;
+        
+        int suma = 0;
+        for (Niño n : lista) {
+            suma += n.edad;
+        }
+        return (double) suma / lista.size();
+    }
+
+
+
+
+    public Niño buscarCarnet(int carnet) throws IOException, ClassNotFoundException {
+        ArrayList<Niño> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) return null;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Niño>) in.readObject();
+        in.close();
+        
+        for (Niño n : lista) {
+            if (n.ci == carnet) {
+                return n;
+            }
+        }
+        return null;
+    }
+    
+    public void tallaMasAlta() throws IOException, ClassNotFoundException {
+        ArrayList<Niño> lista = new ArrayList<>();
+        File f = new File(na);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Niño>) in.readObject();
+        in.close();
+        
+        if (lista.isEmpty()) return;
+        
+        int maxTalla = 0;
+        for (Niño n : lista) {
+            int talla = Integer.parseInt(n.talla);
+            if (talla > maxTalla) {
+                maxTalla = talla;
+            }
+        }
+        
+        for (Niño n : lista) {
+            if (Integer.parseInt(n.talla) == maxTalla) {
+                System.out.println(n.nombre + " " + n.talla);
+            }
+        }
+    }
+}
+
+
+
+
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ArchNiño arch = new ArchNiño();
+        Scanner s = new Scanner(System.in);
+        int op = 0;
+        
+        while (op != 8) {
+            System.out.println("1 crear 2 agregar 3 listar 4 peso ok 5 inadecuados 6 prom edad 7 buscar ci 8 talla alta 9 salir");
+            op = s.nextInt();
+            
+            if (op == 1) {
+                arch.crear();
+                System.out.println("creado");
+            }
+            
+            if (op == 2) {
+                arch.agregar();
+                System.out.println("agregados");
+            }
+            
+            if (op == 3) {
+                arch.listar();
+            }
+            
+            if (op == 4) {
+                int cant = arch.pesoAdecuado();
+                System.out.println("peso adecuado: " + cant);
+            }
+            
+            if (op == 5) {
+                arch.niñosInadecuados();
+            }
+            
+            if (op == 6) {
+                double prom = arch.promedioEdad();
+                System.out.println("promedio edad: " + prom);
+            }
+            
+            if (op == 7) {
+                System.out.print("carnet: ");
+                int ci = s.nextInt();
+                Niño encontrado = arch.buscarCarnet(ci);
+                if (encontrado != null) {
+                    System.out.println(encontrado.nombre + " " + encontrado.edad);
+                } else {
+                    System.out.println("no encontrado");
+                }
+            }
+            
+            if (op == 8) {
+                arch.tallaMasAlta();
+            }
+        }
+        
+        s.close();
+    }
+}
+
+//solo le pideo un 10 para agner asistiri yoel americo
