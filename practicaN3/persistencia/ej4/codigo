@@ -1,0 +1,186 @@
+import java.io.*;
+import java.util.*;
+
+
+
+class Estudiante implements Serializable {
+    int ru;
+    String nombre;
+    String paterno;
+    String materno;
+    int edad;
+}
+
+
+
+
+
+class Nota implements Serializable {
+    String materno;
+    float notaFinal;
+    Estudiante estudiante;
+}
+
+
+
+
+class ArchiNota {
+    String nombreArchi = "notas.dat";
+    
+    public void agregarVarios() throws IOException, ClassNotFoundException {
+        ArrayList<Nota> lista = new ArrayList<>();
+        File f = new File(nombreArchi);
+        
+        if (f.exists() && f.length() > 0) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+            lista = (ArrayList<Nota>) in.readObject();
+            in.close();
+        }
+        
+        Scanner s = new Scanner(System.in);
+        char otro;
+        
+        do {
+            Nota n = new Nota();
+            n.estudiante = new Estudiante();
+            
+            System.out.print("RU: ");
+            n.estudiante.ru = s.nextInt();
+            System.out.print("Nom: ");
+            n.estudiante.nombre = s.next();
+            System.out.print("Pat: ");
+            n.estudiante.paterno = s.next();
+            System.out.print("Mat: ");
+            n.estudiante.materno = s.next();
+            System.out.print("Edad: ");
+            n.estudiante.edad = s.nextInt();
+            System.out.print("Materia: ");
+            n.materno = s.next();
+            System.out.print("Nota: ");
+            n.notaFinal = s.nextFloat();
+            
+            lista.add(n);
+            
+            System.out.print("otro? s/n: ");
+            otro = s.next().charAt(0);
+        } while (otro == 's' || otro == 'S');
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+        
+    }
+
+
+    
+    public float promedioNotas() throws IOException, ClassNotFoundException {
+        ArrayList<Nota> lista = new ArrayList<>();
+        File f = new File(nombreArchi);
+        
+        if (!f.exists() || f.length() == 0) return 0;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Nota>) in.readObject();
+        in.close();
+        
+        if (lista.isEmpty()) return 0;
+        
+        float suma = 0;
+        for (Nota n : lista) {
+            suma += n.notaFinal;
+        }
+        return suma / lista.size();
+    }
+
+
+
+    
+    public void mejoresNotas() throws IOException, ClassNotFoundException {
+        ArrayList<Nota> lista = new ArrayList<>();
+        File f = new File(nombreArchi);
+        
+        if (!f.exists() || f.length() == 0) {
+            System.out.println("nada");
+            return;
+        }
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Nota>) in.readObject();
+        in.close();
+        
+        if (lista.isEmpty()) {
+            System.out.println("vacio");
+            return;
+        }
+        
+        float max = lista.get(0).notaFinal;
+        for (Nota n : lista) {
+            if (n.notaFinal > max) max = n.notaFinal;
+        }
+        
+        for (Nota n : lista) {
+            if (n.notaFinal == max) {
+                System.out.println(n.estudiante.nombre + " " + n.notaFinal);
+            }
+        }
+    }
+    
+    public void eliminarPorMateria(String mat) throws IOException, ClassNotFoundException {
+        ArrayList<Nota> lista = new ArrayList<>();
+        File f = new File(nombreArchi);
+        
+        if (!f.exists() || f.length() == 0) return;
+        
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+        lista = (ArrayList<Nota>) in.readObject();
+        in.close();
+        
+        for (int i = 0; i < lista.size(); i++) {
+            if (lista.get(i).materno.equals(mat)) {
+                lista.remove(i);
+                i--;
+            }
+        }
+        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+        out.writeObject(lista);
+        out.close();
+    }
+}
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ArchiNota arch = new ArchiNota();
+        Scanner s = new Scanner(System.in);
+        int op = 0;
+        
+        while (op != 6) {
+            System.out.println("1 agregar 2 prom 3 mejores 4 eliminar x mat 5 salir");
+            op = s.nextInt();
+            
+            if (op == 1) {
+                arch.agregarVarios();
+                System.out.println("agregados");
+            }
+            
+            if (op == 2) {
+                float prom = arch.promedioNotas();
+                System.out.println("prom: " + prom);
+            }
+            
+            if (op == 3) {
+                arch.mejoresNotas();
+            }
+            
+            if (op == 4) {
+                System.out.print("materia a borrar: ");
+                String mat = s.next();
+                arch.eliminarPorMateria(mat);
+                System.out.println("borrados");
+            }
+        }
+        
+        s.close();
+    }
+}
+//un 10 porfaafafafa
